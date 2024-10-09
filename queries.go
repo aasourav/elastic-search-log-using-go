@@ -66,6 +66,36 @@ func LogQuery(logType string, namespace string, deployment string, startTime str
 		},
 	}
 
+	allQuery := map[string]interface{}{
+		"from": 0,
+		"size": 10000,
+		"query": map[string]interface{}{
+			"bool": map[string]interface{}{
+				"must": []map[string]interface{}{
+					{
+						"term": map[string]interface{}{
+							"kubernetes.namespace_labels.kubernetes_io/metadata_name.keyword": namespace,
+						},
+					},
+					{
+						"term": map[string]interface{}{
+							"kubernetes.labels.app_kubernetes_io/instance.keyword": deployment,
+						},
+					},
+					{
+						"range": map[string]interface{}{
+							"@timestamp": map[string]interface{}{
+								"gte":    startTime,                   // Greater than or equal to startTime
+								"lte":    endTime,                     // Less than or equal to endTime
+								"format": "strict_date_optional_time", // Timestamp format
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
 	mustNoQuery := map[string]interface{}{
 		"from": 0,
 		"size": 10000,
@@ -100,6 +130,8 @@ func LogQuery(logType string, namespace string, deployment string, startTime str
 	query := shouldQuery
 	if logType == "unknown" {
 		query = mustNoQuery
+	} else if logType == "" {
+		query = allQuery
 	}
 
 	queryJSON, err := json.Marshal(query)
