@@ -34,7 +34,7 @@ func main() {
 	res, err := es.Search(
 		es.Search.WithContext(context.Background()),
 		es.Search.WithIndex("kube_containers"),
-		es.Search.WithBody(strings.NewReader(string(LogQuery("unknown", "aas-ns", "aaa-sql-1-db", startTime, endTime)))), // Convert []byte to string
+		es.Search.WithBody(strings.NewReader(string(LogQuery("info", "aas-ns", "aaa-sql-1-db", startTime, endTime)))), // Convert []byte to string
 	)
 	if err != nil {
 		log.Fatalf("Error getting response: %s", err)
@@ -51,7 +51,6 @@ func main() {
 	if hits, ok := response["hits"].(map[string]interface{}); ok {
 		total := hits["total"].(map[string]interface{})["value"].(float64)
 		fmt.Printf("Total Doc: %d\n", int(total))
-		fmt.Println(len(hits["hits"].([]interface{})))
 		// Iterate over the logs and print them
 		for _, hit := range hits["hits"].([]interface{}) {
 			logEntry := hit.(map[string]interface{})
