@@ -1,0 +1,394 @@
+
+
+
+GET /kube_containers/_search
+{
+  "query": {
+    "match_all": {}
+  },
+  "size": 20000,
+  "from": 0,
+  "_source": {
+    "includes": ["kubernetes.namespace_labels"]
+  }
+}
+
+
+GET /kube_containers/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match_all": {}},
+        { "range": { "@timestamp": { "gte": "now-1d/d", "lt": "now/d" } } }
+      ]
+    }
+  }
+}
+
+//warning
+GET /kube_containers/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "kubernetes.namespace_labels.kubernetes_io/metadata_name.keyword": "aas-ns"
+          }
+        },
+        {
+          "term": {
+            "kubernetes.labels.app_kubernetes_io/instance.keyword": "aaa-sql-1-db"
+          }
+        }
+      ],
+      "must_not": [
+        { "match_phrase": { "message": "error" } },
+        { "match_phrase": { "message": "panic" } },
+        { "match_phrase": { "message": "critical" } },
+        { "match_phrase": { "message": "emergency" } },
+        { "match_phrase": { "message": "alert" } },
+        { "match_phrase": { "message": "security" } },
+        { "match_phrase": { "message": "warning" } },
+        { "match_phrase": { "message": "diagnostic" } },
+        { "match_phrase": { "message": "notice" } },
+        { "match_phrase": { "message": "info" } },
+        { "match_phrase": { "message": "transaction" } },
+        { "match_phrase": { "message": "system" } },
+        { "match_phrase": { "message": "profile" } },
+        { "match_phrase": { "message": "access" } },
+        { "match_phrase": { "message": "debug" } },
+        { "match_phrase": { "message": "trace" } },
+        { "match_phrase": { "message": "verbose" } }
+      ]
+    }
+  },
+  "size": 1000,
+  "_source": ["message", "@timestamp"]
+}
+
+//unknown count
+GET /kube_containers/_search
+{
+  "from": 0,
+  "size": 10000, 
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "kubernetes.namespace_labels.kubernetes_io/metadata_name.keyword": "aas-ns"
+          }
+        },
+        {
+          "term": {
+            "kubernetes.labels.app_kubernetes_io/instance.keyword": "aaa-sql-1-db"
+          }
+        },
+        {
+          "range": {
+            "@timestamp": {
+              "gte": "2024-10-07T00:00:00",
+              "lte": "2024-10-07T23:59:59"
+            }
+          }
+        }
+      ],
+       "must_not": [
+        { "match_phrase": { "message": "error" } },
+        { "match_phrase": { "message": "panic" } },
+        { "match_phrase": { "message": "critical" } },
+        { "match_phrase": { "message": "emergency" } },
+        { "match_phrase": { "message": "alert" } },
+        { "match_phrase": { "message": "security" } },
+        { "match_phrase": { "message": "warning" } },
+        { "match_phrase": { "message": "diagnostic" } },
+        { "match_phrase": { "message": "notice" } },
+        { "match_phrase": { "message": "info" } },
+        { "match_phrase": { "message": "transaction" } },
+        { "match_phrase": { "message": "system" } },
+        { "match_phrase": { "message": "profile" } },
+        { "match_phrase": { "message": "access" } },
+        { "match_phrase": { "message": "debug" } },
+        { "match_phrase": { "message": "trace" } },
+        { "match_phrase": { "message": "verbose" } }
+      ]
+    }
+  }
+}
+
+
+
+//error count
+GET /kube_containers/_count
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "kubernetes.namespace_labels.kubernetes_io/metadata_name.keyword": "aas-ns"
+          }
+        },
+        {
+          "term": {
+            "kubernetes.labels.app_kubernetes_io/instance.keyword": "aaa-sql-1-db"
+          }
+        }
+      ],
+      "should": [
+        { "match_phrase": { "message": "error" } },
+        { "match_phrase": { "message": "panic" } },
+        { "match_phrase": { "message": "critical" } },
+        { "match_phrase": { "message": "emergency" } },
+        { "match_phrase": { "message": "alert" } },
+        { "match_phrase": { "message": "security" } }
+      ],
+      "minimum_should_match": 1
+    }
+  }
+}
+
+
+//info count
+GET /kube_containers/_count
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "kubernetes.namespace_labels.kubernetes_io/metadata_name.keyword": "aas-ns"
+          }
+        },
+        {
+          "term": {
+            "kubernetes.labels.app_kubernetes_io/instance.keyword": "aaa-sql-1-db"
+          }
+        }
+      ],
+      "should": [
+        { "match_phrase": { "message": "notice" } },
+        { "match_phrase": { "message": "info" } },
+        { "match_phrase": { "message": "transaction" } },
+        { "match_phrase": { "message": "system" } },
+        { "match_phrase": { "message": "profile" } },
+        { "match_phrase": { "message": "access" } }
+      ],
+      "minimum_should_match": 1
+    }
+  }
+}
+
+//warning count
+GET /kube_containers/_count
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "kubernetes.namespace_labels.kubernetes_io/metadata_name.keyword": "aas-ns"
+          }
+        },
+        {
+          "term": {
+            "kubernetes.labels.app_kubernetes_io/instance.keyword": "aaa-sql-1-db"
+          }
+        }
+      ],
+      "should": [
+        { "match_phrase": { "message": "warning" } },
+        { "match_phrase": { "message": "notice" } },
+        { "match_phrase": { "message": "diagnostic" } }
+      ],
+      "minimum_should_match": 1
+    }
+  }
+}
+
+//debug count
+GET /kube_containers/_count
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "kubernetes.namespace_labels.kubernetes_io/metadata_name.keyword": "aas-ns"
+          }
+        },
+        {
+          "term": {
+            "kubernetes.labels.app_kubernetes_io/instance.keyword": "aaa-sql-1-db"
+          }
+        }
+      ],
+      "should": [
+        { "match_phrase": { "message": "debug" } },
+        { "match_phrase": { "message": "trace" } },
+        { "match_phrase": { "message": "verbose" } }
+      ],
+      "minimum_should_match": 1
+    }
+  }
+}
+
+//info
+GET /kube_containers/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "kubernetes.namespace_labels.kubernetes_io/metadata_name.keyword": "aas-ns"
+          }
+        },
+        {
+          "term": {
+            "kubernetes.labels.app_kubernetes_io/instance.keyword": "aaa-sql-1-db"
+          }
+        }
+      ],
+      "should": [
+        { "match_phrase": { "message": "notice" } },
+        { "match_phrase": { "message": "info" } },
+         { "match_phrase": { "message": "transaction" } },
+        { "match_phrase": { "message": "system" } },
+        { "match_phrase": { "message": "profile" } },
+        { "match_phrase": { "message": "access" } }
+      ],
+      "minimum_should_match": 1
+    }
+  },
+  "size": 1000,
+  "from": 0,
+  "_source": {
+    "includes": ["message", "@timestamp"]
+  }
+}
+
+
+//debug
+GET /kube_containers/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "kubernetes.namespace_labels.kubernetes_io/metadata_name.keyword": "aas-ns"
+          }
+        },
+        {
+          "term": {
+            "kubernetes.labels.app_kubernetes_io/instance.keyword": "aaa-sql-1-db"
+          }
+        }
+      ],
+      "should": [
+        { "match_phrase": { "message": "debug" } },
+        { "match_phrase": { "message": "trace" } },
+         { "match_phrase": { "message": "verbose" } }
+      ],
+      "minimum_should_match": 1
+    }
+  },
+  "size": 1000,
+  "from": 0,
+  "_source": {
+    "includes": ["message", "@timestamp"]
+  }
+}
+
+//warning
+GET /kube_containers/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "kubernetes.namespace_labels.kubernetes_io/metadata_name.keyword": "aas-ns"
+          }
+        },
+        {
+          "term": {
+            "kubernetes.labels.app_kubernetes_io/instance.keyword": "aaa-sql-1-db"
+          }
+        }
+      ],
+      "should": [
+        { "match_phrase": { "message": "warning" } },
+        { "match_phrase": { "message": "diagnostic" } },
+        { "match_phrase": { "message": "notice" } }
+      ],
+      "minimum_should_match": 1
+    }
+  },
+  "size": 1000,
+  "from": 0,
+  "_source": {
+    "includes": ["message", "@timestamp"]
+  }
+}
+
+//error
+GET /kube_containers/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "kubernetes.namespace_labels.kubernetes_io/metadata_name.keyword": "aas-ns"
+          }
+        },
+        {
+          "term": {
+            "kubernetes.labels.app_kubernetes_io/instance.keyword": "aaa-sql-1-db"
+          }
+        }
+      ],
+      "should": [
+        { "match_phrase": { "message": "error" } },
+        { "match_phrase": { "message": "panic" } },
+        { "match_phrase": { "message": "critical" } },
+        { "match_phrase": { "message": "emergency" } },
+        { "match_phrase": { "message": "alert" } },
+        { "match_phrase": { "message": "security" } }
+      ],
+      "minimum_should_match": 1
+    }
+  },
+  "size": 1000,
+  "from": 0,
+  "_source": {
+    "includes": ["message", "@timestamp"]
+  }
+}
+
+
+
+
+POST /kube_containers/_refresh
+
+
+GET /kube_containers/_search?scroll=1m
+{
+  "query": {
+    "term": {
+      "kubernetes.namespace_labels.kubernetes_io/metadata_name.keyword": "aas-ns"
+    }
+  },
+  "size": 10000,
+  "_source": {
+    "includes": ["kubernetes.namespace_labels"]
+  }
+}
+
+
+GET /_search/scroll/FGluY2x1ZGVfY29udGV4dF91dWlkDXF1ZXJ5QW5kRmV0Y2gBFnhxbzFFV3VhUnphRGV5cnF1R1NiSHcAAAAAAAFFsxYwQm1qODdkQlE5YTJZSW5HS2hjaHhB
+
