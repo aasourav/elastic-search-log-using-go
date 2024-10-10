@@ -34,7 +34,7 @@ func main() {
 	res, err := es.Search(
 		es.Search.WithContext(context.Background()),
 		es.Search.WithIndex("kube_containers"),
-		es.Search.WithBody(strings.NewReader(string(LogQuery("warning", "aas-ns", "aaa-sql-1-db", startTime, endTime)))), // Convert []byte to string
+		es.Search.WithBody(strings.NewReader(string(LogQuery("", "aas-ns", "aaa-sql-1-db", startTime, endTime)))), // Convert []byte to string
 	)
 	if err != nil {
 		log.Fatalf("Error getting response: %s", err)
