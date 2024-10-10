@@ -392,3 +392,106 @@ GET /kube_containers/_search?scroll=1m
 
 GET /_search/scroll/FGluY2x1ZGVfY29udGV4dF91dWlkDXF1ZXJ5QW5kRmV0Y2gBFnhxbzFFV3VhUnphRGV5cnF1R1NiSHcAAAAAAAFFsxYwQm1qODdkQlE5YTJZSW5HS2hjaHhB
 
+
+// all type of log count in one query
+
+GET /kube_containers/_search
+{
+  "size": 0, 
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "kubernetes.namespace_labels.kubernetes_io/metadata_name.keyword": "aas-ns"
+          }
+        },
+        {
+          "term": {
+            "kubernetes.labels.app_kubernetes_io/instance.keyword": "aaa-sql-1-db"
+          }
+        }
+      ]
+    }
+  },
+  "aggs": {
+    "log_levels": {
+      "filters": {
+        "filters": {
+          "error": {
+            "bool": {
+              "should": [
+                { "match_phrase": { "message": "error" } },
+                { "match_phrase": { "message": "panic" } },
+                { "match_phrase": { "message": "critical" } },
+                { "match_phrase": { "message": "emergency" } },
+                { "match_phrase": { "message": "alert" } },
+                { "match_phrase": { "message": "security" } }
+              ],
+              "minimum_should_match": 1
+            }
+          },
+          "info": {
+            "bool": {
+              "should": [
+                { "match_phrase": { "message": "notice" } },
+                { "match_phrase": { "message": "info" } },
+                { "match_phrase": { "message": "transaction" } },
+                { "match_phrase": { "message": "system" } },
+                { "match_phrase": { "message": "profile" } },
+                { "match_phrase": { "message": "access" } }
+              ],
+              "minimum_should_match": 1
+            }
+          },
+          "warning": {
+            "bool": {
+              "should": [
+                { "match_phrase": { "message": "warning" } },
+                { "match_phrase": { "message": "diagnostic" } },
+                { "match_phrase": { "message": "notice" } }
+              ],
+              "minimum_should_match": 1
+            }
+          },
+          "debug": {
+            "bool": {
+              "should": [
+                { "match_phrase": { "message": "debug" } },
+                { "match_phrase": { "message": "trace" } },
+                { "match_phrase": { "message": "verbose" } }
+              ],
+              "minimum_should_match": 1
+            }
+          },
+          "unknown": {
+            "bool": {
+              "must_not": [
+                { "match_phrase": { "message": "error" } },
+                { "match_phrase": { "message": "panic" } },
+                { "match_phrase": { "message": "critical" } },
+                { "match_phrase": { "message": "emergency" } },
+                { "match_phrase": { "message": "alert" } },
+                { "match_phrase": { "message": "security" } },
+                { "match_phrase": { "message": "warning" } },
+                { "match_phrase": { "message": "diagnostic" } },
+                { "match_phrase": { "message": "notice" } },
+                { "match_phrase": { "message": "info" } },
+                { "match_phrase": { "message": "transaction" } },
+                { "match_phrase": { "message": "system" } },
+                { "match_phrase": { "message": "profile" } },
+                { "match_phrase": { "message": "access" } },
+                { "match_phrase": { "message": "debug" } },
+                { "match_phrase": { "message": "trace" } },
+                { "match_phrase": { "message": "verbose" } }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
