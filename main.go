@@ -15,7 +15,7 @@ func main() {
 	// Define the client configuration with your credentials and Elasticsearch address
 	cfg := elasticsearch.Config{
 		Addresses: []string{
-			"http://172.19.255.204:9200", // Replace with your Elasticsearch address
+			"http://172.19.255.200:9200", // Replace with your Elasticsearch address
 		},
 		Username: "aes",     // Replace with your username
 		Password: "aes1234", // Replace with your password
